@@ -36,49 +36,11 @@ pub fn part1_gen(input: &str) -> ([Vec<char>; 9], Vec<Instruction>) {
 
         let caps = stacks_re.captures(line).unwrap();
 
-        match caps.name("s1") {
-            Some(c) => stacks[0].push(c.as_str().chars().next().unwrap()),
-            None => {}
-        }
-
-        match caps.name("s2") {
-            Some(c) => stacks[1].push(c.as_str().chars().next().unwrap()),
-            None => {}
-        }
-
-        match caps.name("s3") {
-            Some(c) => stacks[2].push(c.as_str().chars().next().unwrap()),
-            None => {}
-        }
-
-        match caps.name("s4") {
-            Some(c) => stacks[3].push(c.as_str().chars().next().unwrap()),
-            None => {}
-        }
-
-        match caps.name("s5") {
-            Some(c) => stacks[4].push(c.as_str().chars().next().unwrap()),
-            None => {}
-        }
-
-        match caps.name("s6") {
-            Some(c) => stacks[5].push(c.as_str().chars().next().unwrap()),
-            None => {}
-        }
-
-        match caps.name("s7") {
-            Some(c) => stacks[6].push(c.as_str().chars().next().unwrap()),
-            None => {}
-        }
-
-        match caps.name("s8") {
-            Some(c) => stacks[7].push(c.as_str().chars().next().unwrap()),
-            None => {}
-        }
-
-        match caps.name("s9") {
-            Some(c) => stacks[8].push(c.as_str().chars().next().unwrap()),
-            None => {}
+        for (n, stack) in stacks.iter_mut().enumerate() {
+            match caps.name(format!("s{}", n + 1).as_str()) {
+                Some(c) => stack.push(c.as_str().chars().next().unwrap()),
+                None => {}
+            }
         }
     }
 
@@ -115,6 +77,7 @@ pub fn part1_gen(input: &str) -> ([Vec<char>; 9], Vec<Instruction>) {
 #[aoc(day5, part1)]
 pub fn part1(input: &([Vec<char>; 9], Vec<Instruction>)) -> String {
     let mut stacks = input.0.clone();
+    let mut answer = String::from("");
 
     for instruction in input.1.iter() {
         for _ in 0..instruction.qty {
@@ -123,7 +86,6 @@ pub fn part1(input: &([Vec<char>; 9], Vec<Instruction>)) -> String {
         }
     }
 
-    let mut answer = String::from("");
     for s in stacks.iter() {
         answer = format!("{}{}", answer, s.last().unwrap());
     }
@@ -131,7 +93,24 @@ pub fn part1(input: &([Vec<char>; 9], Vec<Instruction>)) -> String {
     answer
 }
 
-// #[aoc(day5, part2)]
-// pub fn part2(pairs: &[Pair]) -> u32 {
-//     pairs.iter().map(|p| p.get_overlap_count()).sum()
-// }
+#[aoc(day5, part2)]
+pub fn part2(input: &([Vec<char>; 9], Vec<Instruction>)) -> String {
+    let mut stacks = input.0.clone();
+    let mut answer = String::from("");
+
+    for instruction in input.1.iter() {
+        let mut temp_stack: Vec<char> = vec![];
+        for _ in 0..instruction.qty {
+            let c = stacks[instruction.from].pop().unwrap();
+            temp_stack.push(c);
+        }
+        temp_stack.reverse();
+        stacks[instruction.to].append(&mut temp_stack);
+    }
+
+    for s in stacks.iter() {
+        answer = format!("{}{}", answer, s.last().unwrap());
+    }
+
+    answer
+}
